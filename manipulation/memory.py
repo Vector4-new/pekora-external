@@ -1,4 +1,6 @@
 from ctypes import *
+import struct
+
 from manipulation.process import Process
 
 ReadProcessMemory = windll.kernel32.ReadProcessMemory
@@ -119,3 +121,63 @@ class MemoryWrapper:
 
         if WriteProcessMemory(self.process.handle, address, pointer(arr), len(value), None) == 0:
             raise WinError(GetLastError())
+        
+    def ReadUByte(self, address : int) -> int:
+        return struct.unpack("B", self.ReadBytes(address, 1))[0]
+    
+    def ReadUShort(self, address : int) -> int:
+        return struct.unpack("H", self.ReadBytes(address, 2))[0]
+    
+    def ReadUInt(self, address : int) -> int:
+        return struct.unpack("I", self.ReadBytes(address, 4))[0]
+    
+    def ReadUInt64(self, address : int) -> int:
+        return struct.unpack("Q", self.ReadBytes(address, 8))[0]
+    
+    def ReadByte(self, address : int) -> int:
+        return struct.unpack("b", self.ReadBytes(address, 1))[0]
+    
+    def ReadShort(self, address : int) -> int:
+        return struct.unpack("h", self.ReadBytes(address, 2))[0]
+    
+    def ReadInt(self, address : int) -> int:
+        return struct.unpack("i", self.ReadBytes(address, 4))[0]
+    
+    def ReadInt64(self, address : int) -> int:
+        return struct.unpack("q", self.ReadBytes(address, 8))[0]
+    
+    def ReadFloat(self, address : int) -> float:
+        return struct.unpack("f", self.ReadBytes(address, 4))[0]
+    
+    def ReadDouble(self, address : int) -> float:
+        return struct.unpack("d", self.ReadBytes(address, 4))[0]
+    
+    def WriteUByte(self, address : int, value: int):
+        return self.WriteBytes(address, struct.pack("B", value))
+    
+    def WriteUShort(self, address : int, value: int):
+        return self.WriteBytes(address, struct.pack("H", value))
+    
+    def WriteUInt(self, address : int, value: int):
+        return self.WriteBytes(address, struct.pack("I", value))
+    
+    def WriteUInt64(self, address : int, value: int):
+        return self.WriteBytes(address, struct.pack("Q", value))
+    
+    def WriteByte(self, address : int, value: int):
+        return self.WriteBytes(address, struct.pack("b", value))
+    
+    def WriteShort(self, address : int, value: int):
+        return self.WriteBytes(address, struct.pack("h", value))
+    
+    def WriteInt(self, address : int, value: int):
+        return self.WriteBytes(address, struct.pack("i", value))
+    
+    def WriteInt64(self, address : int, value: int):
+        return self.WriteBytes(address, struct.pack("q", value))
+    
+    def WriteFloat(self, address : int, value: float):
+        return self.WriteBytes(address, struct.pack("f", value))
+    
+    def WriteDouble(self, address : int, value: float):
+        return self.WriteBytes(address, struct.pack("d", value))
