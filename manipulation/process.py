@@ -20,6 +20,14 @@ EnumProcessModules = windll.psapi.EnumProcessModules
 EnumProcessModules.argtypes = [ c_void_p, c_void_p, c_int, POINTER(c_int) ]
 EnumProcessModules.restype = c_int
 
+NtSuspendProcess = windll.ntdll.NtSuspendProcess
+NtSuspendProcess.argtypes = [ c_void_p ]
+NtSuspendProcess.restype = c_int
+
+NtResumeProcess = windll.ntdll.NtResumeProcess
+NtResumeProcess.argtypes = [ c_void_p ]
+NtResumeProcess.restype = c_int
+
 class Process:
     PROCESS_ALL_ACCESS = 0x000F0000 | 0x00100000 | 0xFFF
     PROCESS_ARRAY_SIZE = 4096
@@ -58,6 +66,14 @@ class Process:
         
         return name.value
     
+    def Suspend(self):
+        if NtSuspendProcess(self.handle) != 0:
+            raise WinError(GetLastError())
+        
+    def Resume(self):
+        if NtResumeProcess(self.handle) != 0:
+            raise WinError(GetLastError())
+        
     @staticmethod
     def GetAllProcessIDs() -> list[int]:
         processes = (c_int * Process.PROCESS_ARRAY_SIZE)()
