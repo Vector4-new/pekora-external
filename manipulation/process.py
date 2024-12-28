@@ -28,6 +28,10 @@ NtResumeProcess = windll.ntdll.NtResumeProcess
 NtResumeProcess.argtypes = [ c_void_p ]
 NtResumeProcess.restype = c_int
 
+GetProcessId = windll.kernel32.GetProcessId
+GetProcessId.argtypes = [ c_void_p ]
+GetProcessId.restype = c_int
+
 class Process:
     PROCESS_ALL_ACCESS = 0x000F0000 | 0x00100000 | 0xFFF
     PROCESS_ARRAY_SIZE = 4096
@@ -45,6 +49,14 @@ class Process:
     def __del__(self):
         if self.handle != None:
             CloseHandle(self.handle)
+
+    def GetId(self):
+        pid = GetProcessId(self.handle)
+
+        if pid == 0:
+            raise WinError(GetLastError())
+        
+        return pid
 
     def GetExecutableName(self):
         return self.GetModuleName(0)
