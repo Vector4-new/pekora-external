@@ -20,8 +20,8 @@ class Job:
 
     def GetScriptContext(self):
         # for some reason all the DataModel pointers are like fake or something idk
-        if self.GetName() != "WaitingScriptsJob":
-            raise ValueError("Not a `WaitingScriptsJob` job")
+        if self.GetName() != "WaitingScriptJob":
+            return None
         
         return Instance(self.memory, self.memory.ReadUInt(self.address + Job.WAITINGSCRIPTSJOB_SCRIPTCONTEXT))
 
