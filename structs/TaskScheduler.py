@@ -1,11 +1,12 @@
 import struct
 
 from manipulation.memory import MemoryWrapper
+from structs.Instance import Instance
 
 class Job:
     JOB_SIZE = 12
     JOB_NAME = 0x54
-    PHYSICS_DATAMODEL = 0x4C
+    WAITINGSCRIPTSJOB_SCRIPTCONTEXT = 0x240
 
     memory = None
     address = None
@@ -22,13 +23,12 @@ class Job:
         
         return embeddedName[:length].decode()
 
-    def GetDataModel(self) -> int:
-        "TODO: return `Instance` when it is implemented"
-
-        if self.GetName() != "Physics":
-            raise ValueError("Not a `Physics` job")
+    def GetScriptContext(self) -> Instance:
+        # for some reason all the DataModel pointers are like fake or something idk
+        if self.GetName() != "WaitingScriptsJob":
+            raise ValueError("Not a `WaitingScriptsJob` job")
         
-        return self.memory.ReadUInt(self.address + Job.PHYSICS_DATAMODEL)
+        return Instance(self.memory, self.memory.ReadUInt(self.address + Job.WAITINGSCRIPTSJOB_SCRIPTCONTEXT))
 
 class TaskScheduler:
     JOBS_VECTOR = 0x228
@@ -51,3 +51,12 @@ class TaskScheduler:
             jobs.append(Job(self.memory, struct.unpack("I", allJobsBytes[job - start:job - start + 4])[0]))
 
         return jobs
+    
+    def GetJob(self, name : str):
+        for job in self.GetAllJobs():
+            jobName = job.GetName()
+
+            if jobName == name:
+                return job
+            
+        return None
