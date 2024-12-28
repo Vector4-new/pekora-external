@@ -58,7 +58,7 @@ class Process:
         
         return list(modules)[0:int(count.value / sizeof(c_void_p))]
 
-    def GetModuleName(self, moduleBase) -> str:
+    def GetModuleName(self, moduleBase : int) -> str:
         name = (c_wchar * Process.PROCESS_NAME_LENGTH)()
 
         if GetModuleFileNameExW(self.handle, moduleBase, cast(name, c_wchar_p), sizeof(name) // sizeof(c_wchar)) == 0:
