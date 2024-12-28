@@ -15,15 +15,10 @@ class Job:
         self.memory = memory
         self.address = address
 
-    def GetName(self) -> str:
-        ( embeddedName, length, maxLength ) = struct.unpack("16sII", self.memory.ReadBytes(self.address + Job.JOB_NAME, 24))
+    def GetName(self):
+        return self.memory.ReadCPPString(self.address + Job.JOB_NAME)
 
-        if maxLength > 15:
-            return self.memory.ReadBytes(struct.unpack("I", embeddedName[:4])[0], length).decode()
-        
-        return embeddedName[:length].decode()
-
-    def GetScriptContext(self) -> Instance:
+    def GetScriptContext(self):
         # for some reason all the DataModel pointers are like fake or something idk
         if self.GetName() != "WaitingScriptsJob":
             raise ValueError("Not a `WaitingScriptsJob` job")

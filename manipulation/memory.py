@@ -152,6 +152,14 @@ class MemoryWrapper:
     def ReadDouble(self, address : int) -> float:
         return struct.unpack("d", self.ReadBytes(address, 4))[0]
     
+    def ReadCPPString(self, address : int) -> str:
+        ( embeddedName, length, maxLength ) = struct.unpack("16sII", self.ReadBytes(address, 24))
+
+        if maxLength > 15:
+            return self.ReadBytes(struct.unpack("I", embeddedName[:4])[0], length).decode()
+        
+        return embeddedName[:length].decode()
+
     def WriteUByte(self, address : int, value: int):
         return self.WriteBytes(address, struct.pack("B", value))
     
