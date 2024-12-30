@@ -1,11 +1,9 @@
 # shika try not to get groomed challenge
 
 import time
-from ctypes import c_void_p
 
 from manipulation.process import Process
 from manipulation.memory import MemoryWrapper
-from manipulation.window import Window
 from structs.TaskScheduler import TaskScheduler
 from structs.ModuleScript import ModuleScript
 from bytecode.parser import ParseLuaBytecode
@@ -118,7 +116,12 @@ module.OverwriteBytecode(SerialiseAndCompressProto(proto, 866186343))
 
 # when we load the new bytecode it will overwrite the registry index
 # so we wait for it to be changed then restore it back so require returns the correct value
+# also we save the old threadref because otherwise it will get gced and PROBABLY crash
+# this will cause a slight memory leak when we replace back the old ref after it succeeds running but we want the thread alive so not really a mem leak
 regIndex = perVmState.GetRegistryIndex()
+oldNode = perVmState.GetNode()
+
+perVmState.SetNode(0)
 perVmState.SetLoadingState(perVmState.STATE_NOT_RUN_YET)
 
 print("Press Escape to finalise injection")
@@ -129,16 +132,18 @@ while True:
             print("Failed to run init script")
 
             perVmState.SetLoadingState(perVmState.STATE_COMPLETED_SUCCESS)
+            perVmState.SetNode(oldNode)
             perVmState.SetRegistryIndex(regIndex)
 
             exit()
         case perVmState.STATE_COMPLETED_SUCCESS:
-            print("Init script ran successfully")
-
+            perVmState.SetNode(oldNode)
             perVmState.SetRegistryIndex(regIndex)
-    
+
             break
+        case perVmState.STATE_RUNNING:
+            perVmState.SetThreadIdentity(6)
 
-    time.sleep(0.1)
+    time.sleep(0.01)
 
-# TODO: gui, ...
+print("Injected")
