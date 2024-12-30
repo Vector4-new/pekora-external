@@ -1,6 +1,7 @@
 # shika try not to get groomed challenge
 
 import time
+import struct
 
 from manipulation.process import Process
 from manipulation.memory import MemoryWrapper
@@ -48,6 +49,10 @@ print(f"Base address: 0x{baseAddress:X}")
 print(f"Process ID: {process.GetId()}")
 
 TASK_SCHEDULER_OFFSET = 0x1462C90
+STATE_BASE_OFFSET = 16
+STATE_TOP_OFFSET = 12
+STRING_LENGTH_OFFSET = 12
+STRING_START_OFFSET = 0x18
 
 scheduler = TaskScheduler(memory, memory.ReadUInt(baseAddress + TASK_SCHEDULER_OFFSET))
 
@@ -121,6 +126,10 @@ module.OverwriteBytecode(SerialiseAndCompressProto(proto, 866186343))
 regIndex = perVmState.GetRegistryIndex()
 oldNode = perVmState.GetNode()
 
+# this will hold the address of the string buffer we use to communicate back and forth to Lua
+# this is 8mb
+buffer = None
+
 perVmState.SetNode(0)
 perVmState.SetLoadingState(perVmState.STATE_NOT_RUN_YET)
 
@@ -142,7 +151,38 @@ while True:
 
             break
         case perVmState.STATE_RUNNING:
-            perVmState.SetThreadIdentity(6)
+            if buffer == None:
+                # suspend so base/top don't move around
+                process.Suspend()
+
+                state = perVmState.GetModuleThread()
+                base = memory.ReadUInt(state + STATE_BASE_OFFSET)
+                top = memory.ReadUInt(state + STATE_TOP_OFFSET)
+
+                stack = memory.ReadBytes(base, top - base)
+
+                # 16 = sizeof TValue
+                for obj in range(0, top - base, 16):
+                    ( ptr, _, objType ) = struct.unpack("III", stack[obj:obj + 12])
+
+                    if objType == 4:
+                        encodedStrLen = memory.ReadUInt(ptr + STRING_LENGTH_OFFSET)
+
+                        if (encodedStrLen + ptr + STRING_LENGTH_OFFSET) & 0xFFFFFFFF == 8 * 1024 * 1024:
+                            # buffer has size of 8mb
+                            buffer = ptr + STRING_START_OFFSET
+
+                if buffer == None:
+                    print("Failed to get string buffer; stuck in infinite loop")
+
+                    exit()
+
+                # signal that we are done here
+                memory.WriteUByte(buffer, 1)
+
+                perVmState.SetThreadIdentity(6)
+
+                process.Resume()
 
     time.sleep(0.01)
 
