@@ -2,6 +2,7 @@ from manipulation.memory import MemoryWrapper
 
 class PerVMState:
     SCRIPT_LOADING_STATE = 0x4
+    NODE = 0x8
     GLOBAL_STATE = 0xC
     REGISTRY_INDEX = 0x10
 
@@ -20,6 +21,9 @@ class PerVMState:
     def GetLoadingState(self):
         return self.memory.ReadUInt(self.address + PerVMState.SCRIPT_LOADING_STATE)
     
+    def GetNode(self):
+        return self.memory.ReadUInt(self.address + PerVMState.NODE)
+
     def GetGlobalState(self):
         "This global state holds the result of the require"
 
@@ -31,5 +35,22 @@ class PerVMState:
     def SetLoadingState(self, state : int):
         self.memory.WriteUInt(self.address + PerVMState.SCRIPT_LOADING_STATE, state)
     
+    def SetNode(self, node : int):
+        self.memory.WriteUInt(self.address + PerVMState.SCRIPT_LOADING_STATE, node)
+
     def SetRegistryIndex(self, index : int):
         self.memory.WriteUInt(self.address + PerVMState.REGISTRY_INDEX, index)
+
+    # wrapper function because im not making seperate shit for it to be used exactly once
+    def SetThreadIdentity(self, identity : int):
+        # doesnt seem to be node, maybe they changed in this version
+
+        nodeIntrusive = self.GetNode()
+        weakFunctionRef = self.memory.ReadUInt(nodeIntrusive + 4)
+        stateIntrusive = self.memory.ReadUInt(weakFunctionRef + 0x14)
+        state = self.memory.ReadUInt(stateIntrusive + 8)
+        bitfield = self.memory.ReadUByte(state - 32)
+
+        # first 5 bits reserved for identity
+        # rest are other flags
+        self.memory.WriteUByte(state - 32, (bitfield & 0xE0) | (identity & 0x1F))
