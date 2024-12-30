@@ -36,7 +36,7 @@ class PerVMState:
         self.memory.WriteUInt(self.address + PerVMState.SCRIPT_LOADING_STATE, state)
     
     def SetNode(self, node : int):
-        self.memory.WriteUInt(self.address + PerVMState.SCRIPT_LOADING_STATE, node)
+        self.memory.WriteUInt(self.address + PerVMState.NODE, node)
 
     def SetRegistryIndex(self, index : int):
         self.memory.WriteUInt(self.address + PerVMState.REGISTRY_INDEX, index)
