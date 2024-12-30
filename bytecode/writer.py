@@ -74,7 +74,7 @@ def SerialiseProto(proto : Proto, encodeKey : int, strings : list[bytes]):
             case InstructionEnum.MOVE.value:
                 converted = RbxInstruction.SetArgC(converted, 1)
             case InstructionEnum.JMP.value:
-                converted = JumpEncryption(converted ^ (-10065 * i))
+                converted = JumpEncryption(converted ^ (uint32(0xFFFFD8AF) * i))
                 converted = RbxInstruction.SetOpcode(converted, luaToRobloxInstruction[LuaInstruction.GetOpcode(code)])
             case InstructionEnum.CALL.value:
                 converted = DaxEncodeOp(converted, uint32(0x72394BC8), uint32(i) + 1470882913, uint32(0xA1F3D8AF), uint32(i))
