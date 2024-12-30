@@ -36,7 +36,11 @@ class ModuleScript(Instance):
             ptr = struct.unpack("I", entries[i * 4:i * 4 + 4])[0]
 
             if ptr != 0:
-                # 12 is offset from bucket/whatever to actual VMState object
-                return PerVMState(self.memory, ptr + 12)
+                # not 0 is object at end of bucket? idk
+                endOfBucket = self.memory.ReadUInt(ptr)
+
+                if endOfBucket != 0:
+                    # 12 is offset from bucket/whatever to actual VMState object
+                    return PerVMState(self.memory, endOfBucket + 12)
             
         return None
