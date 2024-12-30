@@ -41,14 +41,19 @@ class PerVMState:
     def SetRegistryIndex(self, index : int):
         self.memory.WriteUInt(self.address + PerVMState.REGISTRY_INDEX, index)
 
-    # wrapper function because im not making seperate shit for it to be used exactly once
-    def SetThreadIdentity(self, identity : int):
+    def GetModuleThread(self):
         # doesnt seem to be node, maybe they changed in this version
 
         nodeIntrusive = self.GetNode()
         weakFunctionRef = self.memory.ReadUInt(nodeIntrusive + 4)
         stateIntrusive = self.memory.ReadUInt(weakFunctionRef + 0x14)
         state = self.memory.ReadUInt(stateIntrusive + 8)
+
+        return state
+
+    # wrapper function because im not making seperate shit for it to be used exactly once
+    def SetThreadIdentity(self, identity : int):
+        state = self.GetModuleThread()
         bitfield = self.memory.ReadUByte(state - 32)
 
         # first 5 bits reserved for identity
