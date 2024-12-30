@@ -9,6 +9,10 @@ class ModuleScript(Instance):
     VM_STATE_MAP = 0x14C
     NUM_BUCKETS = 16
 
+    def __init__(self, instance : Instance):
+        self.memory = instance.memory
+        self.address = instance.address
+
     def OverwriteBytecode(self, bytecode : bytes):
         ( embeddedName, _, maxLength ) = struct.unpack("16sII", self.memory.ReadBytes(self.address + ModuleScript.BYTECODE_ADDRESS, 24))
 
