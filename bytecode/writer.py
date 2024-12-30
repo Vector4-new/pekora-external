@@ -29,10 +29,8 @@ def SerialiseProto(proto : Proto, encodeKey : int, strings : list[bytes]):
             chunk += b"\x03"
             chunk += struct.pack("d", const)
         elif type(const) == bytes:
-            print(const)
             chunk += b"\x04"
             chunk += SerialiseString(const, strings)
-            print(len(strings))
 
     lineIndex = 0
     lastLine = 0
