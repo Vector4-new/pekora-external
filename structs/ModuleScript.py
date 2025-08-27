@@ -42,5 +42,8 @@ class ModuleScript(Instance):
                 if endOfBucket != 0:
                     # 12 is offset from bucket/whatever to actual VMState object
                     return PerVMState(self.memory, endOfBucket + 12)
-            
+                else:
+                    # hopefully this is pervmstate
+                    return PerVMState(self.memory, ptr + 12)
+
         return None

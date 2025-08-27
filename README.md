@@ -1,3 +1,9 @@
+This doesn't actually work lol  
+Maybe you can skid this  
+Even if you do fix it some opcodes are still not converted which will lead to freezes & strange effects  
+  
+This used to work at some point, but in it's current state it's unusable.  
+
 This is an external written for Pekora's 2017 client.  
 I am not responsible if this gets you banned!
 
