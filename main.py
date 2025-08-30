@@ -1,5 +1,3 @@
-# shika try not to get groomed challenge
-
 import time
 import struct
 from numpy import seterr
