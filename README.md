@@ -1,3 +1,6 @@
+## Original proof of concept from ages ago  
+[POC](https://github.com/Vector4-new/pekora-external/blob/main/Screenshot%202024-12-29%20013610.png?raw=true)
+
 This doesn't actually work lol  
 Maybe you can skid this  
 Even if you do fix it some opcodes are still not converted which will lead to freezes & strange effects  
